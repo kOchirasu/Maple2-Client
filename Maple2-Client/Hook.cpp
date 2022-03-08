@@ -1,4 +1,4 @@
-#include "Hook.h"
+#include "hook.h"
 
 namespace hook {
   FARPROC GetFuncAddress(LPCSTR lpLibFileName, LPCSTR lpProcName) {

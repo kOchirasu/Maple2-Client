@@ -2,13 +2,13 @@
 #include "NMFunctionObject.h"
 
 #define	INIT_STRING( dstName, srcName, len )													\
-	if ( srcName != NULL ) { ::_tcsncpy( dstName, srcName, len ); dstName[ len - 1 ] = 0; }		\
+	if ( srcName != NULL ) { ::_tcsncpy_s( dstName, srcName, len ); dstName[ len - 1 ] = 0; }		\
 	else { dstName[ 0 ] = 0; }
 
 #define	INIT_STRING2( name, len )		INIT_STRING( this->name, name, len )
 
 #define	INIT_STRINGW( dstName, srcName, len )													\
-	if ( srcName != NULL ) { ::wcsncpy( dstName, srcName, len ); dstName[ len - 1 ] = 0; }		\
+	if ( srcName != NULL ) { ::wcsncpy_s( dstName, srcName, len ); dstName[ len - 1 ] = 0; }		\
 	else { dstName[ 0 ] = 0; }
 
 #define	INIT_STRINGW2( name, len )		INIT_STRINGW( this->name, name, len )
@@ -279,7 +279,7 @@ CNMStartStandAloneMsgFunc::CNMStartStandAloneMsgFunc(void)
 
 CNMStartStandAloneMsgFunc::CNMStartStandAloneMsgFunc(LPCTSTR szDomain)
   : CNMFunc(kCode, 1) {
-  _tcsncpy(this->szDomain, szDomain, DOMAIN_SIZE);
+  _tcsncpy_s(this->szDomain, szDomain, DOMAIN_SIZE);
 }
 
 BEGIN_NMFUNC_SERIALIZE(CNMStartStandAloneMsgFunc)

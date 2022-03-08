@@ -100,7 +100,7 @@ bool operator==(const NMFriendCode& icLeft, const NMFriendCode& icRight) {
 namespace wapp {
   void CopyNString(LPTSTR pszBuffer, LPCTSTR pszSource, size_t bufferSize) {
     if (pszSource) {
-      _tcsncpy(pszBuffer, pszSource, bufferSize);
+      _tcsncpy_s(pszBuffer, _tcslen(pszBuffer), pszSource, bufferSize);
       pszBuffer[bufferSize - 1] = 0;
     }
     else {
@@ -935,7 +935,7 @@ namespace CNMNoteInfoHelper {
     if (pszBuffer && pszAppend) {
       size_t nAppendSize = _tcslen(pszAppend);
       if (nBufferIndex + nAppendSize < nBufferSize) {
-        _tcscpy(pszBuffer + nBufferIndex, pszAppend);
+        _tcscpy_s(pszBuffer + nBufferIndex, nBufferSize - nBufferIndex, pszAppend);
         nBufferIndex += nAppendSize;
         return TRUE;
       }

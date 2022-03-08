@@ -1,5 +1,8 @@
 #pragma once
-#include <windows.h>
+#include <Windows.h>
+#include "NMCO\NMGeneral.h"
+#include "NMCO\NMSerializable.h"
+#include "NMCO\NMFunctionObject.h"
 
 #define BUF_SIZE 2048
 

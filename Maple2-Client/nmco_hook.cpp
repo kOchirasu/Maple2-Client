@@ -1,8 +1,5 @@
-#include "Hook.h"
-#include "NMCOHook.h"
-#include "NMCO\NMGeneral.h"
-#include "NMCO\NMSerializable.h"
-#include "NMCO\NMFunctionObject.h"
+#include "hook.h"
+#include "nmco_hook.h"
 
 namespace nmco {
   BOOL __cdecl CallNMFunc(int uFuncCode, BYTE* pCallingData, BYTE** ppReturnData, UINT32& uReturnDataLen) {

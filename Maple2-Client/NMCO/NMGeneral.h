@@ -42,11 +42,11 @@ public:
 // utility macro
 
 #define NMSAFE_STRCOPY( dst, src, len )		\
-	{ ::_tcsncpy( dst, src, len );			\
+	{ ::_tcsncpy_s( dst, src, len );			\
 	dst[ len - 1 ] = NULL; }
 
 #define NMSAFE_STRCOPYW( dst, src, len )	\
-	{ ::wcsncpy( dst, src, len );			\
+	{ ::wcsncpy_s( dst, src, len );			\
 	dst[ len - 1 ] = NULL; }
 
 #define NMSAFE_STRCOPYA( dst, src, len )	\

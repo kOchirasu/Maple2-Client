@@ -122,8 +122,9 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;MAPLE2CLIENT_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -151,17 +152,23 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="framework.h" />
-    <ClInclude Include="pch.h" />
+    <ClInclude Include="hook.h" />
+    <ClInclude Include="config.h" />
+    <ClInclude Include="nmco_hook.h" />
+    <ClInclude Include="NMCO\NMDataObject.h" />
+    <ClInclude Include="NMCO\NMFunctionObject.h" />
+    <ClInclude Include="NMCO\NMGeneral.h" />
+    <ClInclude Include="NMCO\NMSerializable.h" />
+    <ClInclude Include="win_hook.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="dllmain.cc" />
-    <ClCompile Include="pch.cc">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
-    </ClCompile>
+    <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="hook.cpp" />
+    <ClCompile Include="config.cpp" />
+    <ClCompile Include="NMCO\NMDataObject.cpp" />
+    <ClCompile Include="NMCO\NMFunctionObject.cpp" />
+    <ClCompile Include="NMCO\NMSerializable.cpp" />
+    <ClCompile Include="win_hook.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
