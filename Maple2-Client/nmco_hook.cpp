@@ -2,6 +2,13 @@
 #include "nmco_hook.h"
 
 namespace nmco {
+  namespace {
+    NMCO_CallNMFunc_t _NMCO_CallNMFunc;
+
+    TCHAR g_szUserName[LOGINID_SIZE];
+    BYTE* g_pReturnData = new BYTE[BUF_SIZE];
+  }
+
   BOOL __cdecl CallNMFunc(int uFuncCode, BYTE* pCallingData, BYTE** ppReturnData, UINT32& uReturnDataLen) {
     int nEsi = 0;
     __asm mov nEsi, esi

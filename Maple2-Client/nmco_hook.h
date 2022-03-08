@@ -1,4 +1,6 @@
 #pragma once
+#define WIN32_LEAN_AND_MEAN // Exclude rarely-used stuff from Windows headers
+
 #include <Windows.h>
 #include "NMCO\NMGeneral.h"
 #include "NMCO\NMSerializable.h"
@@ -8,10 +10,6 @@
 
 namespace nmco {
   typedef BOOL(__cdecl* NMCO_CallNMFunc_t)(int uFuncCode, BYTE* pCallingData, BYTE** ppReturnData, UINT32& uReturnDataLen);
-  NMCO_CallNMFunc_t _NMCO_CallNMFunc;
-
-  TCHAR g_szUserName[LOGINID_SIZE];
-  BYTE* g_pReturnData = new BYTE[BUF_SIZE];
 
   BOOL Hook();
 }

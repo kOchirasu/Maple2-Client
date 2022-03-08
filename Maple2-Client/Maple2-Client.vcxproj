@@ -88,8 +88,9 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;MAPLE2CLIENT_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -105,8 +106,9 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;MAPLE2CLIENT_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -154,6 +156,7 @@
   <ItemGroup>
     <ClInclude Include="hook.h" />
     <ClInclude Include="config.h" />
+    <ClInclude Include="winsock_hook.h" />
     <ClInclude Include="nmco_hook.h" />
     <ClInclude Include="NMCO\NMDataObject.h" />
     <ClInclude Include="NMCO\NMFunctionObject.h" />
@@ -168,6 +171,7 @@
     <ClCompile Include="NMCO\NMDataObject.cpp" />
     <ClCompile Include="NMCO\NMFunctionObject.cpp" />
     <ClCompile Include="NMCO\NMSerializable.cpp" />
+    <ClCompile Include="winsock_hook.cpp" />
     <ClCompile Include="win_hook.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -176,11 +180,15 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="..\packages\Detours.4.0.1\build\native\Detours.targets" Condition="Exists('..\packages\Detours.4.0.1\build\native\Detours.targets')" />
+    <Import Project="..\packages\glgoo.glog.redist.0.4.0.1\build\native\glgoo.glog.redist.targets" Condition="Exists('..\packages\glgoo.glog.redist.0.4.0.1\build\native\glgoo.glog.redist.targets')" />
+    <Import Project="..\packages\glgoo.glog.0.4.0.1\build\native\glgoo.glog.targets" Condition="Exists('..\packages\glgoo.glog.0.4.0.1\build\native\glgoo.glog.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\Detours.4.0.1\build\native\Detours.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Detours.4.0.1\build\native\Detours.targets'))" />
+    <Error Condition="!Exists('..\packages\glgoo.glog.redist.0.4.0.1\build\native\glgoo.glog.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\glgoo.glog.redist.0.4.0.1\build\native\glgoo.glog.redist.targets'))" />
+    <Error Condition="!Exists('..\packages\glgoo.glog.0.4.0.1\build\native\glgoo.glog.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\glgoo.glog.0.4.0.1\build\native\glgoo.glog.targets'))" />
   </Target>
 </Project>

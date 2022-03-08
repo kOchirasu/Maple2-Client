@@ -1,10 +1,11 @@
 #include <string.h>
 #include "config.h"
+#include "hook.h"
 #include "win_hook.h"
 
 namespace win {
   BOOL Hook_CreateWindowExA(BOOL bEnable) {
-    static auto _CreateWindowExA = &CreateWindowExA;
+    static decltype(&CreateWindowExA) _CreateWindowExA = &CreateWindowExA;
 
     decltype(&CreateWindowExA) Hook = [](DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindowName, DWORD dwStyle, int x, int y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam) -> HWND {
       if (!config::WindowName.empty() && strcmp(lpClassName, CLIENT_CLASS)) {
