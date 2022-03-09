@@ -35,6 +35,9 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD dwReason, LPVOID lpReserved) {
         return FALSE;
       }
 
+      // Intercept and handle exceptions.
+      hook::InterceptExceptions();
+
       // Create console and attach for logging.
       AllocConsole();
       freopen_s(&fpstdout, "CONOUT$", "w", stdout);

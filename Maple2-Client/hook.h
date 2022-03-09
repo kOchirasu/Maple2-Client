@@ -3,13 +3,17 @@
 
 #include <Windows.h>
 #include "detours.h"
+#include "ehdata.h"
 #include "SigScanner/sigscanner.h"
 
 namespace hook {
   FARPROC GetFuncAddress(LPCSTR lpLibFileName, LPCSTR lpProcName);
+
   BOOL SetHook(BOOL bInstall, PVOID* ppvTarget, PVOID pvDetour);
 
   bool RedirectProcess();
 
   bool PatchClient();
+
+  PVOID InterceptExceptions();
 }

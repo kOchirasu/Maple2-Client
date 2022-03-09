@@ -2,8 +2,9 @@
 #include "hook.h"
 #include "config.h"
 
-#define PE_START		0x00401000 /* The standard PE start address */
-#define PE_END			0x04FFFFFF /* The scan range of the PE */
+#define PE_START          0x00401000 /* The standard PE start address */
+#define PE_END            0x04FFFFFF /* The scan range of the PE */
+#define MS_VC_EXCEPTION   0x406D1388
 
 namespace hook {
   namespace {
@@ -147,5 +148,66 @@ namespace hook {
     }
 
     return bResult;
+  }
+
+  PVOID InterceptExceptions() {
+    PVECTORED_EXCEPTION_HANDLER exHandler = [](EXCEPTION_POINTERS* pExceptionInfo) -> LONG {
+      switch (pExceptionInfo->ExceptionRecord->ExceptionCode) {
+        case EH_EXCEPTION_NUMBER:
+        case EH_EXCEPTION_PARAMETERS: { // C++ Exceptions
+          auto pRec = reinterpret_cast<EHExceptionRecord*>(pExceptionInfo->ExceptionRecord);
+          if (pRec->params.magicNumber != EH_MAGIC_NUMBER1) {
+            break;
+          }
+
+          printf("C++ Exception: %p\n", pRec->ExceptionAddress);
+          for (int i = 0; i < pRec->params.pThrowInfo->pCatchableTypeArray->nCatchableTypes; i++) {
+            auto type = pRec->params.pThrowInfo->pCatchableTypeArray->arrayOfCatchableTypes[0];
+            auto szName = type->pType->name;
+
+            // TODO: MapleStory2 uses MFC and throws abstract CException objects. Handle these!
+            // CException objects have a GetErrorMessage() function which means we can log error messages.
+
+            printf("\tException %d: %s\n", i, szName);
+            _CONTEXT* reg = pExceptionInfo->ContextRecord;
+            if (reg) {
+              printf("\tEAX=%X EBX=%X ECX=%X EDX=%X EDI=%X ESI=%X EBP=%X EIP=%X ESP=%X\n", reg->Eax, reg->Ebx, reg->Ecx, reg->Edx, reg->Edi, reg->Esi, reg->Ebp, reg->Eip, reg->Esp);
+            }
+          }
+          break;
+        }
+        case MS_VC_EXCEPTION: // C++ Thread Name Exception
+          if (pExceptionInfo->ExceptionRecord->ExceptionAddress != 0) {
+            printf("SetThreadName Exception Raised [%p]\n", pExceptionInfo->ExceptionRecord->ExceptionAddress);
+          }
+          break;
+        case STATUS_HEAP_CORRUPTION:
+          if (pExceptionInfo->ExceptionRecord->ExceptionAddress != 0) {
+            printf("CxxException [STATUS_HEAP_CORRUPTION]: %p\n", pExceptionInfo->ExceptionRecord->ExceptionAddress);
+          }
+          break;
+        case STATUS_ACCESS_VIOLATION:
+          if (pExceptionInfo->ExceptionRecord->ExceptionAddress != 0) {
+            printf("CxxException [STATUS_ACCESS_VIOLATION]: %p\n", pExceptionInfo->ExceptionRecord->ExceptionAddress);
+          }
+          break;
+        case STATUS_BREAKPOINT:
+          if (pExceptionInfo->ExceptionRecord->ExceptionAddress != 0) {
+            printf("CxxException [STATUS_BREAKPOINT]: %p\n", pExceptionInfo->ExceptionRecord->ExceptionAddress);
+          }
+          break;
+        case STATUS_PRIVILEGED_INSTRUCTION:
+        case DBG_PRINTEXCEPTION_C:
+        case DBG_PRINTEXCEPTION_WIDE_C:
+          break; // Ignored
+        default:
+          printf("RegException: %08X (%p)\n", pExceptionInfo->ExceptionRecord->ExceptionCode, pExceptionInfo->ExceptionRecord->ExceptionAddress);
+          break;
+      }
+
+      return EXCEPTION_CONTINUE_SEARCH;
+    };
+
+    return AddVectoredExceptionHandler(1, exHandler);
   }
 }
