@@ -3,8 +3,8 @@
 
 #include <WinSock2.h>
 #include <WS2spi.h>
+#include <iostream>
 #include "config.h"
-#include <glog/logging.h>
 #include "hook.h"
 #include "winsock_hook.h"
 
@@ -32,29 +32,29 @@ namespace winsock {
       int nRet = WSAAddressToStringW((sockaddr*)name, namelen, NULL, szAddr, &dwLen);
       if (nRet) {
         if (!pPort) {
-          LOG(ERROR) << "WSAAddressToStringA failed with error: " << nRet;
+          std::cerr << "WSAAddressToStringA failed with error: " << nRet << std::endl;
           return nRet;
         }
 
-        LOG(WARNING) << "Socket redirection falling back to " << config::HostName;
+        std::cout << "Socket redirection falling back to " << config::HostName << std::endl;
       }
 
       if (wcsstr(szAddr, NEXON_IP_NA) || wcsstr(szAddr, NEXON_IP_SA) || wcsstr(szAddr, NEXON_IP_EU) || wcsstr(szAddr, NULL_IP)) {
-        LOG(INFO) << "Redirecting from: " << szAddr;
+        std::cout << "Redirecting from: " << szAddr << std::endl;
         hostent* he = gethostbyname(config::HostName.c_str()); // Resolve DNS
         if (!he) {
           int nRet = WSAGetLastError();
-          LOG(ERROR) << "Unable to resolve " << config::HostName << " with error: " << nRet;
+          std::cerr << "Unable to resolve " << config::HostName << " with error: " << nRet << std::endl;
           return nRet;
         }
 
-        LOG(INFO) << config::HostName << " resolved to " << he->h_addr_list[0];
+        std::cout << config::HostName << " resolved to " << he->h_addr_list[0] << std::endl;
         g_RouteAddress = inet_addr(he->h_addr_list[0]);
         g_HostAddress = service->sin_addr.S_un.S_addr;
         service->sin_addr.S_un.S_addr = g_RouteAddress;
       }
 
-      LOG(INFO) << "Connecting to " << inet_ntoa(service->sin_addr);
+      std::cout << "Connecting to " << inet_ntoa(service->sin_addr) << std::endl;
       return g_ProcTable.lpWSPConnect(s, name, namelen, lpCallerData, lpCalleeData, lpSQOS, lpGQOS, lpErrno);
     }
 
@@ -62,7 +62,7 @@ namespace winsock {
     int WINAPI WSPGetPeerName_Hook(SOCKET s, sockaddr* name, LPINT namelen, LPINT lpErrno) {
       int nRet = g_ProcTable.lpWSPGetPeerName(s, name, namelen, lpErrno);
       if (nRet == SOCKET_ERROR) {
-        LOG(ERROR) << "WSPGetPeerName failed with error: " << *lpErrno;
+        std::cerr << "WSPGetPeerName failed with error: " << *lpErrno << std::endl;
         return nRet;
       }
 

@@ -7,4 +7,6 @@
 namespace hook {
   FARPROC GetFuncAddress(LPCSTR lpLibFileName, LPCSTR lpProcName);
   BOOL SetHook(BOOL bInstall, PVOID* ppvTarget, PVOID pvDetour);
+
+  bool RedirectProcess();
 }

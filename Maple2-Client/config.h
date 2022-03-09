@@ -5,6 +5,7 @@
 
 namespace config {
   extern std::string WindowName;
+  extern std::string Locale;
   extern std::string HostName;
   extern unsigned short Port;
 

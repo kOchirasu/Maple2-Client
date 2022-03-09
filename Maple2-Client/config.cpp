@@ -2,6 +2,7 @@
 
 namespace config {
   std::string WindowName;
+  std::string Locale;
   std::string HostName;
   unsigned short Port;
 
@@ -13,6 +14,7 @@ namespace config {
 
   bool Load(const std::string& path) {
     WindowName = "Maple2";
+    Locale = "EN";
     HostName = "127.0.0.1";
     Port = 20001;
 
