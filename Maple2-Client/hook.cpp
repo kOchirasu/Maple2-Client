@@ -9,10 +9,7 @@ namespace hook {
   namespace {
     bool BypassNGS(sigscanner::SigScanner& memory) {
       DWORD dwBypassNGS = memory.FindSig(
-        { 0x8D, 0x45, 0xF4, 0x64, 0xA3, 0x00, 0x00, 0x00, 0x00, 0x6A, 0x01 },
-        { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 },
-        /*skip=*/1
-      ) - 0x1C;
+        { 0x8D, 0x45, 0xF4, 0x64, 0xA3, 0x00, 0x00, 0x00, 0x00, 0x6A, 0x01 }, {}, /*skip=*/1) - 0x1C;
 
       if (dwBypassNGS == NULL) {
         std::cerr << "BYPASS_NGS failed to find signature." << std::endl;
@@ -58,12 +55,12 @@ namespace hook {
       }
 
       if (dwBypassBanWord) {
-        memory.WriteBytes(dwBypassBanWord, { '\0' });
+        memory.WriteBytes(dwBypassBanWord, { '\0' }); // 0-length string
         printf("BYPASS_BANWORD at %08X\n", dwBypassBanWord);
       }
 
       if (dwBypassBanWordAll) {
-        memory.WriteBytes(dwBypassBanWordAll, { '\0' });
+        memory.WriteBytes(dwBypassBanWordAll, { '\0' }); // 0-length string
         printf("BYPASS_BANWORDALL at %08X\n", dwBypassBanWordAll);
       }
 
