@@ -40,7 +40,7 @@ namespace winsock {
       }
 
       if (wcsstr(szAddr, NEXON_IP_NA) || wcsstr(szAddr, NEXON_IP_SA) || wcsstr(szAddr, NEXON_IP_EU) || wcsstr(szAddr, NULL_IP)) {
-        std::cout << "Redirecting from: " << szAddr << std::endl;
+        std::wcout << "Redirecting from: " << szAddr << std::endl;
         hostent* he = gethostbyname(config::HostName.c_str()); // Resolve DNS
         if (!he) {
           int nRet = WSAGetLastError();
@@ -48,13 +48,14 @@ namespace winsock {
           return nRet;
         }
 
-        std::cout << config::HostName << " resolved to " << he->h_addr_list[0] << std::endl;
-        g_RouteAddress = inet_addr(he->h_addr_list[0]);
+        auto routeAddr = (struct in_addr*)he->h_addr_list[0];
+        std::cout << config::HostName << " resolved to " << inet_ntoa(*routeAddr) << std::endl;
+        g_RouteAddress = routeAddr->S_un.S_addr;
         g_HostAddress = service->sin_addr.S_un.S_addr;
         service->sin_addr.S_un.S_addr = g_RouteAddress;
       }
 
-      std::cout << "Connecting to " << inet_ntoa(service->sin_addr) << std::endl;
+      std::cout << "Connecting to " << inet_ntoa(service->sin_addr) << ":" << service->sin_port << std::endl;
       return g_ProcTable.lpWSPConnect(s, name, namelen, lpCallerData, lpCalleeData, lpSQOS, lpGQOS, lpErrno);
     }
 

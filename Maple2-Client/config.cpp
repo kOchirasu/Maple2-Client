@@ -14,7 +14,7 @@ namespace config {
   bool Load(const std::string& path) {
     WindowName = "Maple2";
     Locale = "EN";
-    HostName = "127.0.0.1";
+    HostName = "localhost";
     Port = 20001;
 
     BypassBanWord = true;
