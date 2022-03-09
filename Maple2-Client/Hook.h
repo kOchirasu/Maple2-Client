@@ -10,4 +10,6 @@ namespace hook {
   BOOL SetHook(BOOL bInstall, PVOID* ppvTarget, PVOID pvDetour);
 
   bool RedirectProcess();
+
+  bool PatchClient();
 }

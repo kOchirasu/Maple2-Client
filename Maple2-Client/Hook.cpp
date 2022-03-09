@@ -1,7 +1,49 @@
+#include <iostream>
 #include "hook.h"
 #include "config.h"
 
+#define PE_START		0x00401000 /* The standard PE start address */
+#define PE_END			0x04FFFFFF /* The scan range of the PE */
+
 namespace hook {
+  namespace {
+    bool BypassNGS(sigscanner::SigScanner& memory) {
+      DWORD dwBypassNGS = memory.FindSig(
+        { 0x8D, 0x45, 0xF4, 0x64, 0xA3, 0x00, 0x00, 0x00, 0x00, 0x6A, 0x01 },
+        { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 },
+        /*skip=*/1
+      ) - 0x1C;
+
+      if (dwBypassNGS == NULL) {
+        std::cerr << "BYPASS_NGS failed to find signature." << std::endl;
+        return false;
+      }
+
+      memory.WriteBytes(dwBypassNGS, { 0x33, 0xC0, 0xC3 }); // return 0
+      printf("BYPASS_NGS at %08X\n", dwBypassNGS);
+      return true;
+    }
+
+    bool DisableNXL(sigscanner::SigScanner& memory) {
+      DWORD dwDisableNXL = memory.FindSig(
+        { 0xB8, 0x01, 0x00, 0x00, 0x00, 0xC3, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC,
+          0x55, 0x8B, 0xEC, 0x6A, 0xFF, 0x68, 0x00, 0x00, 0x00, 0x01, 0x64, 0xA1, 0x00, 0x00, 0x00, 0x00 },
+        { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 },
+        /*skip=*/1
+      );
+
+      if (dwDisableNXL == NULL) {
+        std::cerr << "DISABLE_NXL failed to find signature." << std::endl;
+        return false;
+      }
+
+      memory.WriteBytes(dwDisableNXL, { 0xB8, 0x00, 0x00, 0x00, 0x00 }); // return 0
+      printf("DISABLE_NXL at %08X\n", dwDisableNXL);
+      return true;
+    }
+  }
+
   FARPROC GetFuncAddress(LPCSTR lpLibFileName, LPCSTR lpProcName) {
     HMODULE hModule = LoadLibraryA(lpLibFileName);
     if (!hModule) {
@@ -62,5 +104,20 @@ namespace hook {
     }
 
     return true;
+  }
+
+  bool PatchClient() {
+    sigscanner::SigScanner memory(PE_START, PE_END);
+
+    bool bResult = true;
+    if (config::BypassNGS) {
+      bResult &= BypassNGS(memory);
+    }
+
+    if (config::DisableNXL) {
+      bResult &= DisableNXL(memory);
+    }
+
+    return bResult;
   }
 }

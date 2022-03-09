@@ -2,7 +2,6 @@
 #define WIN32_LEAN_AND_MEAN // Exclude rarely-used stuff from Windows headers
 
 #include <Windows.h>
-#include <TlHelp32.h>
 #include <vector>
 
 namespace sigscanner {
@@ -10,11 +9,9 @@ namespace sigscanner {
   public:
     SigScanner(DWORD dwStartAddr, DWORD dwEndAddr) : _dwStartAddr(dwStartAddr), _dwEndAddr(dwEndAddr) {}
 
-    template <typename T>
-    bool WriteMemory(DWORD dwAddr, T value);
+    bool WriteBytes(DWORD dwAddr, const std::vector<BYTE>& bytes);
 
-    template <typename T>
-    T ReadMemory(DWORD dwAddr);
+    std::vector<BYTE> ReadBytes(DWORD dwAddr, size_t count);
 
     DWORD FindSig(const std::vector<BYTE>& sig, const std::vector<bool>& mask, int skip = 0);
 

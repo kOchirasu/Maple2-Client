@@ -23,7 +23,9 @@ namespace win {
 
     decltype(&CreateMutexA) Hook = [](LPSECURITY_ATTRIBUTES lpMutexAttributes, BOOL bInitialOwner, LPCSTR lpName) -> HANDLE {
       if (lpName && !strcmp(lpName, MUTLI_MUTEX)) {
-        // Initialize Maple2
+        if (!hook::PatchClient()) {
+          MessageBoxA(NULL, "Failed to patch client.", "Error", MB_ICONERROR | MB_OK);
+        }
 
         if (config::EnableMultiClient) {
           HANDLE hProcHandle = GetCurrentProcess();

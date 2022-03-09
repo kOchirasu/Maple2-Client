@@ -10,11 +10,14 @@
 #include "win_hook.h"
 #include "winsock_hook.h"
 
+#define CLIENT_LOCALE "en-US"
+
 FILE* fpstdout = stdout;
 FILE* fpstderr = stderr;
 
 extern "C" __declspec(dllexport)
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD dwReason, LPVOID lpReserved) {
+  // Load config file to global variables.
   if (!config::Load("")) {
     MessageBoxA(NULL, "Failed to load config.", "Error", MB_ICONERROR | MB_OK);
     return FALSE;
@@ -23,24 +26,22 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD dwReason, LPVOID lpReserved) {
   switch (dwReason) {
     case DLL_PROCESS_ATTACH:
       DisableThreadLibraryCalls(hModule);
+
+      setlocale(LC_ALL, CLIENT_LOCALE);
+
+      // Redirect the process with custom args.
       if (!hook::RedirectProcess()) {
         MessageBoxA(NULL, "Failed to redirect process.", "Error", MB_ICONERROR | MB_OK);
         return FALSE;
       }
 
-      MessageBoxA(NULL, "Message", "Title", MB_ICONERROR | MB_OK);
-
+      // Create console and attach for logging.
       AllocConsole();
       freopen_s(&fpstdout, "CONOUT$", "w", stdout);
       freopen_s(&fpstderr, "CONOUT$", "w", stderr);
 
       SetConsoleTitleA(config::WindowName.c_str());
       AttachConsole(GetCurrentProcessId());
-
-      if (!win::Hook()) {
-        MessageBoxA(NULL, "Failed to hook window.", "Error", MB_ICONERROR | MB_OK);
-        return FALSE;
-      }
 
       if (!winsock::Hook()) {
         MessageBoxA(NULL, "Failed to hook winsock.", "Error", MB_ICONERROR | MB_OK);
@@ -49,6 +50,11 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD dwReason, LPVOID lpReserved) {
 
       if (!nmco::Hook()) {
         MessageBoxA(NULL, "Failed to hook nmco.", "Error", MB_ICONERROR | MB_OK);
+        return FALSE;
+      }
+
+      if (!win::Hook()) {
+        MessageBoxA(NULL, "Failed to hook window.", "Error", MB_ICONERROR | MB_OK);
         return FALSE;
       }
 
