@@ -3,6 +3,7 @@
 
 #include <Windows.h>
 #include "detours.h"
+#include "SigScanner/sigscanner.h"
 
 namespace hook {
   FARPROC GetFuncAddress(LPCSTR lpLibFileName, LPCSTR lpProcName);

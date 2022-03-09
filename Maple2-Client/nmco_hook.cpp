@@ -7,6 +7,20 @@ namespace nmco {
 
     TCHAR g_szUserName[LOGINID_SIZE];
     BYTE* g_pReturnData = new BYTE[BUF_SIZE];
+
+    BOOL SetResponse(CNMSimpleStream& s, BYTE** ppReturnData, UINT32& uReturnDataLen) {
+      uReturnDataLen = s.GetBufferSize();
+      if (uReturnDataLen > BUF_SIZE) {
+        return FALSE;
+      }
+
+      memset(g_pReturnData, 0, BUF_SIZE);
+      memcpy_s(g_pReturnData, BUF_SIZE, s.GetBufferPtr(), uReturnDataLen);
+
+      *ppReturnData = g_pReturnData;
+
+      return TRUE;
+    }
   }
 
   BOOL __cdecl CallNMFunc(int uFuncCode, BYTE* pCallingData, BYTE** ppReturnData, UINT32& uReturnDataLen) {
@@ -74,20 +88,6 @@ namespace nmco {
     }
 
     return _NMCO_CallNMFunc(uFuncCode, pCallingData, ppReturnData, uReturnDataLen);
-  }
-
-  BOOL SetResponse(CNMSimpleStream& s, BYTE** ppReturnData, UINT32& uReturnDataLen) {
-    uReturnDataLen = s.GetBufferSize();
-    if (uReturnDataLen > BUF_SIZE) {
-      return FALSE;
-    }
-
-    memset(g_pReturnData, 0, BUF_SIZE);
-    memcpy_s(g_pReturnData, BUF_SIZE, s.GetBufferPtr(), uReturnDataLen);
-
-    *ppReturnData = g_pReturnData;
-
-    return TRUE;
   }
 
   BOOL Hook() {

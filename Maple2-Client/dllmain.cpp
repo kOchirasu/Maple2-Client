@@ -8,6 +8,7 @@
 #include "hook.h"
 #include "nmco_hook.h"
 #include "win_hook.h"
+#include "winsock_hook.h"
 
 FILE* fpstdout = stdout;
 FILE* fpstderr = stderr;
@@ -36,12 +37,22 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD dwReason, LPVOID lpReserved) {
       SetConsoleTitleA(config::WindowName.c_str());
       AttachConsole(GetCurrentProcessId());
 
-      std::cout << config::HostName << std::endl;
-      std::cerr << config::WindowName << std::endl;
+      if (!win::Hook()) {
+        MessageBoxA(NULL, "Failed to hook window.", "Error", MB_ICONERROR | MB_OK);
+        return FALSE;
+      }
 
-      /*if (!win::Hook()) {
+      if (!winsock::Hook()) {
+        MessageBoxA(NULL, "Failed to hook winsock.", "Error", MB_ICONERROR | MB_OK);
+        return FALSE;
+      }
 
-      }*/
+      if (!nmco::Hook()) {
+        MessageBoxA(NULL, "Failed to hook nmco.", "Error", MB_ICONERROR | MB_OK);
+        return FALSE;
+      }
+
+      std::cout << "Successfully hooked all functions." << std::endl;
       break;
     case DLL_PROCESS_DETACH:
       FreeConsole();
