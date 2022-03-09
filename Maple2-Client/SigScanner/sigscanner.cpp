@@ -31,7 +31,7 @@ namespace sigscanner {
   }
 
   DWORD SigScanner::FindSig(DWORD dwStart, DWORD dwEnd, const std::vector<BYTE>& sig, const std::vector<bool>& mask, int skip) {
-    if (sig.empty() || sig.size() != mask.size()) {
+    if (sig.empty()) {
       return NULL;
     }
 
@@ -40,7 +40,7 @@ namespace sigscanner {
     __try {
       for (DWORD addr = dwStart; addr < (dwEnd - size); addr++) {
         for (i = 0; i < size; i++) {
-          if (mask[i]) {
+          if (i < mask.size() && mask[i]) {
             continue;
           }
 

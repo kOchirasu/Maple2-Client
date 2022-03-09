@@ -7,7 +7,7 @@ namespace config {
   extern std::string HostName;
   extern unsigned short Port;
 
-  extern bool DisableSwearFilter;
+  extern bool BypassBanWord;
   extern bool EnableMultiClient;
   extern bool DisableNXL;
   extern bool BypassNGS;

@@ -6,7 +6,7 @@ namespace config {
   std::string HostName;
   unsigned short Port;
 
-  bool DisableSwearFilter;
+  bool BypassBanWord;
   bool EnableMultiClient;
   bool DisableNXL;
   bool BypassNGS;
@@ -17,7 +17,7 @@ namespace config {
     HostName = "127.0.0.1";
     Port = 20001;
 
-    DisableSwearFilter = true;
+    BypassBanWord = true;
     EnableMultiClient = true;
     DisableNXL = true;
     BypassNGS = true;

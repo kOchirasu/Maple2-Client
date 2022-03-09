@@ -42,6 +42,33 @@ namespace hook {
       printf("DISABLE_NXL at %08X\n", dwDisableNXL);
       return true;
     }
+
+    bool BypassBanWord(sigscanner::SigScanner& memory) {
+      std::string banWord = "banWord.xml";
+      std::vector<BYTE> yBanWord(banWord.begin(), banWord.end());
+      DWORD dwBypassBanWord = memory.FindSig(yBanWord, {});
+
+      std::string banWordAll = "banWordAll.xml";
+      std::vector<BYTE> yBanWordAll(banWordAll.begin(), banWordAll.end());
+      DWORD dwBypassBanWordAll = memory.FindSig(yBanWordAll, {});
+
+      if (dwBypassBanWord == NULL || dwBypassBanWordAll == NULL) {
+        std::cerr << "BYPASS_BANWORD failed to find signature." << std::endl;
+        return false;
+      }
+
+      if (dwBypassBanWord) {
+        memory.WriteBytes(dwBypassBanWord, { '\0' });
+        printf("BYPASS_BANWORD at %08X\n", dwBypassBanWord);
+      }
+
+      if (dwBypassBanWordAll) {
+        memory.WriteBytes(dwBypassBanWordAll, { '\0' });
+        printf("BYPASS_BANWORDALL at %08X\n", dwBypassBanWordAll);
+      }
+
+      return true;
+    }
   }
 
   FARPROC GetFuncAddress(LPCSTR lpLibFileName, LPCSTR lpProcName) {
@@ -116,6 +143,10 @@ namespace hook {
 
     if (config::DisableNXL) {
       bResult &= DisableNXL(memory);
+    }
+
+    if (config::BypassBanWord) {
+      bResult &= BypassBanWord(memory);
     }
 
     return bResult;
