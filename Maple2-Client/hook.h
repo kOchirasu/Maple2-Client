@@ -5,6 +5,9 @@
 #include "detours.h"
 #include "ehdata.h"
 #include "SigScanner/sigscanner.h"
+#include "dbghelp.h"
+
+#pragma comment(lib, "dbghelp.lib")
 
 namespace hook {
   FARPROC GetFuncAddress(LPCSTR lpLibFileName, LPCSTR lpProcName);

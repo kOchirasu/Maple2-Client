@@ -25,7 +25,9 @@ namespace nmco {
 
   BOOL __cdecl CallNMFunc(int uFuncCode, BYTE* pCallingData, BYTE** ppReturnData, UINT32& uReturnDataLen) {
     int nEsi = 0;
+#ifndef _WIN64
     __asm mov nEsi, esi
+#endif
 
     switch (uFuncCode) {
       case kNMFuncCode_SetLocale:
@@ -91,7 +93,11 @@ namespace nmco {
   }
 
   BOOL Hook() {
+#ifdef _WIN64
+    FARPROC nmFuncAddr = hook::GetFuncAddress("NMCOGAME64", "NMCO_CallNMFunction");
+#else
     FARPROC nmFuncAddr = hook::GetFuncAddress("NMCOGAME", "NMCO_CallNMFunc");
+#endif
     if (!nmFuncAddr) {
       return FALSE;
     }

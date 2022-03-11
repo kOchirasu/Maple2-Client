@@ -1,7 +1,7 @@
 #include "sigscanner.h"
 
 namespace sigscanner {
-  bool SigScanner::WriteBytes(DWORD dwAddr, const std::vector<BYTE>& bytes) {
+  bool SigScanner::WriteBytes(DWORD_PTR dwAddr, const std::vector<BYTE>& bytes) {
     if (dwAddr < _dwStartAddr || dwAddr + bytes.size() >= _dwEndAddr) {
       return false;
     }
@@ -12,7 +12,7 @@ namespace sigscanner {
     return true;
   }
 
-  std::vector<BYTE> SigScanner::ReadBytes(DWORD dwAddr, size_t count) {
+  std::vector<BYTE> SigScanner::ReadBytes(DWORD_PTR dwAddr, size_t count) {
     if (dwAddr < _dwStartAddr || dwAddr + count >= _dwEndAddr) {
       return std::vector<BYTE>();
     }
@@ -26,11 +26,11 @@ namespace sigscanner {
     return result;
   }
 
-  DWORD SigScanner::FindSig(const std::vector<BYTE>& sig, const std::vector<bool>& mask, int skip) {
+  DWORD_PTR SigScanner::FindSig(const std::vector<BYTE>& sig, const std::vector<bool>& mask, int skip) {
     return FindSig(_dwStartAddr, _dwEndAddr, sig, mask, skip);
   }
 
-  DWORD SigScanner::FindSig(DWORD dwStart, DWORD dwEnd, const std::vector<BYTE>& sig, const std::vector<bool>& mask, int skip) {
+  DWORD_PTR SigScanner::FindSig(DWORD_PTR dwStart, DWORD_PTR dwEnd, const std::vector<BYTE>& sig, const std::vector<bool>& mask, int skip) {
     if (sig.empty()) {
       return NULL;
     }
@@ -38,7 +38,7 @@ namespace sigscanner {
     size_t size = sig.size();
     size_t i;
     __try {
-      for (DWORD addr = dwStart; addr < (dwEnd - size); addr++) {
+      for (DWORD_PTR addr = dwStart; addr < (dwEnd - size); addr++) {
         for (i = 0; i < size; i++) {
           if (i < mask.size() && mask[i]) {
             continue;

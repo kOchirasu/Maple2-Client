@@ -2,34 +2,50 @@
 #include "hook.h"
 #include "config.h"
 
+#ifdef _WIN64
+#define PE_START          0x0000000140001000 /* The standard PE start address */
+#define PE_END            0x000000014FFFFFFF /* The scan range of the PE */
+#else
 #define PE_START          0x00401000 /* The standard PE start address */
 #define PE_END            0x04FFFFFF /* The scan range of the PE */
+#endif
+
 #define MS_VC_EXCEPTION   0x406D1388
 
 namespace hook {
   namespace {
     bool BypassNGS(sigscanner::SigScanner& memory) {
-      DWORD dwBypassNGS = memory.FindSig(
+#ifdef _WIN64
+      DWORD_PTR dwBypassNGS = memory.FindSig(
+        { 0x48, 0x8D, 0x6C, 0x24, 0xD9, 0x48, 0x81, 0xEC, 0xC0, 0x00, 0x00, 0x00, 0x48, 0xC7, 0x45, 0x07 },{}) - 0x0B;
+#else
+      DWORD_PTR dwBypassNGS = memory.FindSig(
         { 0x8D, 0x45, 0xF4, 0x64, 0xA3, 0x00, 0x00, 0x00, 0x00, 0x6A, 0x01 }, {}, /*skip=*/1) - 0x1C;
-
+#endif
       if (dwBypassNGS == NULL) {
         std::cerr << "BYPASS_NGS failed to find signature." << std::endl;
         return false;
       }
 
       memory.WriteBytes(dwBypassNGS, { 0x33, 0xC0, 0xC3 }); // return 0
-      printf("BYPASS_NGS at %08X\n", dwBypassNGS);
+      std::cout << "BYPASS_NGS at " << (void*)dwBypassNGS << std::endl;
       return true;
     }
 
     bool DisableNXL(sigscanner::SigScanner& memory) {
-      DWORD dwDisableNXL = memory.FindSig(
+#ifdef _WIN64
+      DWORD_PTR dwDisableNXL = memory.FindSig(
+        { 0xB8, 0x01, 0x00, 0x00, 0x00, 0xC3, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC,
+          0x48, 0x89, 0x4C, 0x24, 0x08, 0x57, 0x48, 0x83, 0xEC, 0x30, 0x48, 0xC7, 0x44, 0x24, 0x28 }, {});
+#else
+      DWORD_PTR dwDisableNXL = memory.FindSig(
         { 0xB8, 0x01, 0x00, 0x00, 0x00, 0xC3, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC,
           0x55, 0x8B, 0xEC, 0x6A, 0xFF, 0x68, 0x00, 0x00, 0x00, 0x01, 0x64, 0xA1, 0x00, 0x00, 0x00, 0x00 },
         { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 },
         /*skip=*/1
       );
+#endif
 
       if (dwDisableNXL == NULL) {
         std::cerr << "DISABLE_NXL failed to find signature." << std::endl;
@@ -37,18 +53,18 @@ namespace hook {
       }
 
       memory.WriteBytes(dwDisableNXL, { 0xB8, 0x00, 0x00, 0x00, 0x00 }); // return 0
-      printf("DISABLE_NXL at %08X\n", dwDisableNXL);
+      std::cout << "DISABLE_NXL at " << (void*)dwDisableNXL << std::endl;
       return true;
     }
 
     bool BypassBanWord(sigscanner::SigScanner& memory) {
       std::string banWord = "banWord.xml";
       std::vector<BYTE> yBanWord(banWord.begin(), banWord.end());
-      DWORD dwBypassBanWord = memory.FindSig(yBanWord, {});
+      DWORD_PTR dwBypassBanWord = memory.FindSig(yBanWord, {});
 
       std::string banWordAll = "banWordAll.xml";
       std::vector<BYTE> yBanWordAll(banWordAll.begin(), banWordAll.end());
-      DWORD dwBypassBanWordAll = memory.FindSig(yBanWordAll, {});
+      DWORD_PTR dwBypassBanWordAll = memory.FindSig(yBanWordAll, {});
 
       if (dwBypassBanWord == NULL || dwBypassBanWordAll == NULL) {
         std::cerr << "BYPASS_BANWORD failed to find signature." << std::endl;
@@ -57,12 +73,12 @@ namespace hook {
 
       if (dwBypassBanWord) {
         memory.WriteBytes(dwBypassBanWord, { '\0' }); // 0-length string
-        printf("BYPASS_BANWORD at %08X\n", dwBypassBanWord);
+        std::cout << "BYPASS_BANWORD at " << (void*)dwBypassBanWord << std::endl;
       }
 
       if (dwBypassBanWordAll) {
         memory.WriteBytes(dwBypassBanWordAll, { '\0' }); // 0-length string
-        printf("BYPASS_BANWORDALL at %08X\n", dwBypassBanWordAll);
+        std::cout << "BYPASS_BANWORDALL at " << (void*)dwBypassBanWordAll << std::endl;
       }
 
       return true;
@@ -150,6 +166,7 @@ namespace hook {
     return bResult;
   }
 
+#ifndef _WIN64
   PVOID InterceptExceptions() {
     PVECTORED_EXCEPTION_HANDLER exHandler = [](EXCEPTION_POINTERS* pExceptionInfo) -> LONG {
       switch (pExceptionInfo->ExceptionRecord->ExceptionCode) {
@@ -210,4 +227,5 @@ namespace hook {
 
     return AddVectoredExceptionHandler(1, exHandler);
   }
+#endif
 }

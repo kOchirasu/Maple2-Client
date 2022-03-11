@@ -35,8 +35,10 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD dwReason, LPVOID lpReserved) {
         return FALSE;
       }
 
+#ifndef _WIN64
       // Intercept and handle exceptions.
       hook::InterceptExceptions();
+#endif
 
       // Create console and attach for logging.
       AllocConsole();
