@@ -6,7 +6,6 @@
 #include <iostream>
 #include "config.h"
 #include "hook.h"
-#include "nmco_hook.h"
 #include "win_hook.h"
 #include "winsock_hook.h"
 
@@ -50,11 +49,6 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD dwReason, LPVOID lpReserved) {
 
       if (!winsock::Hook()) {
         MessageBoxA(NULL, "Failed to hook winsock.", "Error", MB_ICONERROR | MB_OK);
-        return FALSE;
-      }
-
-      if (!nmco::Hook()) {
-        MessageBoxA(NULL, "Failed to hook nmco.", "Error", MB_ICONERROR | MB_OK);
         return FALSE;
       }
 

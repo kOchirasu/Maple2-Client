@@ -158,21 +158,12 @@
     <ClInclude Include="config.h" />
     <ClInclude Include="SigScanner\sigscanner.h" />
     <ClInclude Include="winsock_hook.h" />
-    <ClInclude Include="nmco_hook.h" />
-    <ClInclude Include="NMCO\NMDataObject.h" />
-    <ClInclude Include="NMCO\NMFunctionObject.h" />
-    <ClInclude Include="NMCO\NMGeneral.h" />
-    <ClInclude Include="NMCO\NMSerializable.h" />
     <ClInclude Include="win_hook.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="hook.cpp" />
     <ClCompile Include="config.cpp" />
-    <ClCompile Include="NMCO\NMDataObject.cpp" />
-    <ClCompile Include="NMCO\NMFunctionObject.cpp" />
-    <ClCompile Include="NMCO\NMSerializable.cpp" />
-    <ClCompile Include="nmco_hook.cpp" />
     <ClCompile Include="SigScanner\sigscanner.cpp" />
     <ClCompile Include="winsock_hook.cpp" />
     <ClCompile Include="win_hook.cpp" />

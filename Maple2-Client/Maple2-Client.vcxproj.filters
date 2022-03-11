@@ -15,21 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="NMCO\NMDataObject.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="NMCO\NMSerializable.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="NMCO\NMGeneral.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="NMCO\NMFunctionObject.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="nmco_hook.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="hook.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -50,15 +35,6 @@
     <ClCompile Include="dllmain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="NMCO\NMDataObject.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="NMCO\NMFunctionObject.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="NMCO\NMSerializable.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="hook.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -69,9 +45,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="winsock_hook.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="nmco_hook.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SigScanner\sigscanner.cpp">
