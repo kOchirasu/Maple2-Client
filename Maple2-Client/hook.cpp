@@ -170,14 +170,17 @@ namespace hook {
   PVOID InterceptExceptions() {
     PVECTORED_EXCEPTION_HANDLER exHandler = [](EXCEPTION_POINTERS* pExceptionInfo) -> LONG {
       switch (pExceptionInfo->ExceptionRecord->ExceptionCode) {
-        case EH_EXCEPTION_NUMBER:
-        case EH_EXCEPTION_PARAMETERS: { // C++ Exceptions
+        case EH_EXCEPTION_NUMBER: { // C++ Exceptions
+          if (pExceptionInfo->ExceptionRecord->NumberParameters != EH_EXCEPTION_PARAMETERS) {
+            break;
+          }
+
           auto pRec = reinterpret_cast<EHExceptionRecord*>(pExceptionInfo->ExceptionRecord);
           if (pRec->params.magicNumber != EH_MAGIC_NUMBER1) {
             break;
           }
 
-          printf("C++ Exception: %p\n", pRec->ExceptionAddress);
+          printf("C++ Exception: %p (Data: %p)\n", pRec->ExceptionAddress, pRec->params.pExceptionObject);
           for (int i = 0; i < pRec->params.pThrowInfo->pCatchableTypeArray->nCatchableTypes; i++) {
             auto type = pRec->params.pThrowInfo->pCatchableTypeArray->arrayOfCatchableTypes[0];
             auto szName = type->pType->name;
@@ -185,11 +188,12 @@ namespace hook {
             // TODO: MapleStory2 uses MFC and throws abstract CException objects. Handle these!
             // CException objects have a GetErrorMessage() function which means we can log error messages.
 
-            printf("\tException %d: %s\n", i, szName);
-            _CONTEXT* reg = pExceptionInfo->ContextRecord;
-            if (reg) {
-              printf("\tEAX=%X EBX=%X ECX=%X EDX=%X EDI=%X ESI=%X EBP=%X EIP=%X ESP=%X\n", reg->Eax, reg->Ebx, reg->Ecx, reg->Edx, reg->Edi, reg->Esi, reg->Ebp, reg->Eip, reg->Esp);
-            }
+            printf("\tException[%d]: %s\n", i, szName);
+          }
+
+          _CONTEXT* reg = pExceptionInfo->ContextRecord;
+          if (reg) {
+            printf("\tEAX=%X EBX=%X ECX=%X EDX=%X EDI=%X ESI=%X EBP=%X EIP=%X ESP=%X\n", reg->Eax, reg->Ebx, reg->Ecx, reg->Edx, reg->Edi, reg->Esi, reg->Ebp, reg->Eip, reg->Esp);
           }
           break;
         }
