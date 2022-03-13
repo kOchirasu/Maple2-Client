@@ -2,6 +2,9 @@
 #include <string>
 
 namespace config {
+  extern bool DisableNXL;
+  extern bool BypassNGS;
+
   extern std::string WindowName;
   extern std::string Locale;
   extern std::string HostName;
@@ -9,8 +12,6 @@ namespace config {
 
   extern bool BypassBanWord;
   extern bool EnableMultiClient;
-  extern bool DisableNXL;
-  extern bool BypassNGS;
 
   bool Load(const std::string& path);
 }

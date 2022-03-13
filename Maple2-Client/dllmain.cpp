@@ -9,19 +9,12 @@
 #include "win_hook.h"
 #include "winsock_hook.h"
 
-#define CLIENT_LOCALE "en-US"
-
+constexpr char CLIENT_LOCALE[] = "en-US";
 FILE* fpstdout = stdout;
 FILE* fpstderr = stderr;
 
 extern "C" __declspec(dllexport)
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD dwReason, LPVOID lpReserved) {
-  // Load config file to global variables.
-  if (!config::Load("")) {
-    MessageBoxA(NULL, "Failed to load config.", "Error", MB_ICONERROR | MB_OK);
-    return FALSE;
-  }
-
   switch (dwReason) {
     case DLL_PROCESS_ATTACH:
       DisableThreadLibraryCalls(hModule);
@@ -43,6 +36,12 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD dwReason, LPVOID lpReserved) {
       AllocConsole();
       freopen_s(&fpstdout, "CONOUT$", "w", stdout);
       freopen_s(&fpstderr, "CONOUT$", "w", stderr);
+
+      // Load config file to global variables.
+      if (!config::Load("maple2.ini")) {
+        MessageBoxA(NULL, "Failed to load config.", "Error", MB_ICONERROR | MB_OK);
+        return FALSE;
+      }
 
       SetConsoleTitleA(config::WindowName.c_str());
       AttachConsole(GetCurrentProcessId());
