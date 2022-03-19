@@ -21,11 +21,20 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD dwReason, LPVOID lpReserved) {
 
       setlocale(LC_ALL, CLIENT_LOCALE);
 
-      AllocConsole();
-      AttachConsole(GetCurrentProcessId());
-      ShowWindow(GetConsoleWindow(), SW_HIDE);
-      freopen_s(&fpstdout, "CONOUT$", "w", stdout);
-      freopen_s(&fpstderr, "CONOUT$", "w", stderr);
+      if (AllocConsole()) {
+        AttachConsole(GetCurrentProcessId());
+        ShowWindow(GetConsoleWindow(), SW_HIDE);
+
+        // Disable QUICK_EDIT_MODE (this can cause the window to freeze)
+        DWORD prev_mode;
+        HANDLE hConsole = GetStdHandle(STD_INPUT_HANDLE);
+        GetConsoleMode(hConsole, &prev_mode);
+        SetConsoleMode(hConsole, prev_mode & ~ENABLE_QUICK_EDIT_MODE);
+
+        // Redirect output streams
+        freopen_s(&fpstdout, "CONOUT$", "w", stdout);
+        freopen_s(&fpstderr, "CONOUT$", "w", stderr);
+      }
 
       // Load config file to global variables.
       if (!config::Load("maple2.ini")) {
