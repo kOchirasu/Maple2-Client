@@ -127,8 +127,14 @@ namespace hook {
       char strFileName[MAX_PATH];
       GetModuleFileNameA(NULL, strFileName, MAX_PATH);
 
+      if (config::Port < 1024) {
+        std::cout << "Unsupported port: " << config::Port << std::endl;
+        return false;
+      }
+
       char strCmd[1024];
       std::snprintf(strCmd, 1024, "\"%s\" %d --nxapp=nxl --lc=%s", strFileName, config::Port, config::Locale.c_str());
+      std::cout << strCmd << std::endl;
 
       PROCESS_INFORMATION procInfo = {};
       STARTUPINFOA startInfo = {};

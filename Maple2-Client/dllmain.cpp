@@ -21,8 +21,22 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD dwReason, LPVOID lpReserved) {
 
       setlocale(LC_ALL, CLIENT_LOCALE);
 
+      AllocConsole();
+      AttachConsole(GetCurrentProcessId());
+      ShowWindow(GetConsoleWindow(), SW_HIDE);
+      freopen_s(&fpstdout, "CONOUT$", "w", stdout);
+      freopen_s(&fpstderr, "CONOUT$", "w", stderr);
+
+      // Load config file to global variables.
+      if (!config::Load("maple2.ini")) {
+        ShowWindow(GetConsoleWindow(), SW_RESTORE);
+        MessageBoxA(NULL, "Failed to load config.", "Error", MB_ICONERROR | MB_OK);
+        return FALSE;
+      }
+
       // Redirect the process with custom args.
       if (!hook::RedirectProcess()) {
+        ShowWindow(GetConsoleWindow(), SW_RESTORE);
         MessageBoxA(NULL, "Failed to redirect process.", "Error", MB_ICONERROR | MB_OK);
         return FALSE;
       }
@@ -32,19 +46,8 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD dwReason, LPVOID lpReserved) {
       hook::InterceptExceptions();
 #endif
 
-      // Create console and attach for logging.
-      AllocConsole();
-      freopen_s(&fpstdout, "CONOUT$", "w", stdout);
-      freopen_s(&fpstderr, "CONOUT$", "w", stderr);
-
-      // Load config file to global variables.
-      if (!config::Load("maple2.ini")) {
-        MessageBoxA(NULL, "Failed to load config.", "Error", MB_ICONERROR | MB_OK);
-        return FALSE;
-      }
-
       SetConsoleTitleA(config::WindowName.c_str());
-      AttachConsole(GetCurrentProcessId());
+      ShowWindow(GetConsoleWindow(), SW_RESTORE);
 
       if (!winsock::Hook()) {
         MessageBoxA(NULL, "Failed to hook winsock.", "Error", MB_ICONERROR | MB_OK);

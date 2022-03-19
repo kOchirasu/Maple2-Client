@@ -80,7 +80,6 @@ namespace config {
     Locale = AtOrDefault<std::string>(cfg, "locale", "EN");
     HostName = AtOrDefault<std::string>(cfg, "host", "localhost");
     Port = AtOrDefault<unsigned short>(cfg, "port", 20001);
-    Port = 20001;
 
     BypassBanWord = AtOrDefault<bool>(cfg, "banword");
     EnableMultiClient = AtOrDefault<bool>(cfg, "multiclient");
