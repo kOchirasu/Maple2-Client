@@ -12,6 +12,12 @@
 namespace hook {
   FARPROC GetFuncAddress(LPCSTR lpLibFileName, LPCSTR lpProcName);
 
+  template<class F>
+  F GetVtableFunc(int base, int index) {
+    int* addr = (int*)base + index;
+    return reinterpret_cast<F>(*(addr));
+  }
+
   BOOL SetHook(BOOL bInstall, PVOID* ppvTarget, PVOID pvDetour);
 
   bool RedirectProcess();

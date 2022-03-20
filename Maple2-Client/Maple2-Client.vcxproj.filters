@@ -30,6 +30,9 @@
     <ClInclude Include="SigScanner\sigscanner.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Packet\outpacket_hook.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -48,6 +51,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SigScanner\sigscanner.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Packet\outpacket_hook.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

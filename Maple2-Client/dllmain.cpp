@@ -1,11 +1,11 @@
 // dllmain.cpp : Defines the entry point for the DLL application.
 #define WIN32_LEAN_AND_MEAN // Exclude rarely-used stuff from Windows headers
-#define GLOG_NO_ABBREVIATED_SEVERITIES
 
 #include <Windows.h>
 #include <iostream>
 #include "config.h"
 #include "hook.h"
+#include "packet/outpacket_hook.h"
 #include "win_hook.h"
 #include "winsock_hook.h"
 
@@ -67,6 +67,13 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD dwReason, LPVOID lpReserved) {
         MessageBoxA(NULL, "Failed to hook window.", "Error", MB_ICONERROR | MB_OK);
         return FALSE;
       }
+
+#ifndef _WIN64
+      if (config::HookOutPacket && !outpacket::Hook()) {
+        MessageBoxA(NULL, "Failed to hook outpacket.", "Error", MB_ICONERROR | MB_OK);
+        return FALSE;
+      }
+#endif
 
       std::cout << "Successfully hooked all functions." << std::endl;
       break;

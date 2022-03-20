@@ -13,5 +13,9 @@ namespace config {
   extern bool BypassBanWord;
   extern bool EnableMultiClient;
 
+  // Packet Hooks
+  extern bool HookOutPacket;
+  extern bool HookInPacket;
+
   bool Load(const std::string& path);
 }

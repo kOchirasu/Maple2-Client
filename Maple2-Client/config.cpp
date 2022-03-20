@@ -56,6 +56,9 @@ namespace config {
   bool BypassBanWord;
   bool EnableMultiClient;
 
+  bool HookOutPacket;
+  bool HookInPacket;
+
   bool Load(const std::string& path) {
     inipp::Ini<char> ini;
     std::ifstream file;
@@ -83,6 +86,9 @@ namespace config {
 
     BypassBanWord = AtOrDefault<bool>(cfg, "banword");
     EnableMultiClient = AtOrDefault<bool>(cfg, "multiclient");
+
+    HookOutPacket = AtOrDefault<bool>(cfg, "hook_outpacket", false);
+    HookInPacket = AtOrDefault<bool>(cfg, "hook_inpacket", false);
 
     return true;
   }

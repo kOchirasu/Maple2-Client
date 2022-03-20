@@ -161,6 +161,7 @@
   <ItemGroup>
     <ClInclude Include="hook.h" />
     <ClInclude Include="config.h" />
+    <ClInclude Include="Packet\outpacket_hook.h" />
     <ClInclude Include="SigScanner\sigscanner.h" />
     <ClInclude Include="winsock_hook.h" />
     <ClInclude Include="win_hook.h" />
@@ -169,6 +170,7 @@
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="hook.cpp" />
     <ClCompile Include="config.cpp" />
+    <ClCompile Include="Packet\outpacket_hook.cpp" />
     <ClCompile Include="SigScanner\sigscanner.cpp" />
     <ClCompile Include="winsock_hook.cpp" />
     <ClCompile Include="win_hook.cpp" />
