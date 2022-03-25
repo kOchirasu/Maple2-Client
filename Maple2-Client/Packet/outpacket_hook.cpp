@@ -36,10 +36,10 @@ namespace outpacket {
     void(__fastcall EncodeAStrW)(void* packet, void* edx, CStringA* value);
     static auto _EncodeAStrW = hook::GetVtableFunc<decltype(&EncodeAStrW)>(COutPacket_vtable, 6);
 
-    void (__fastcall EncodeStrA)(void* packet, void* edx, CStringA* value);
+    void(__fastcall EncodeStrA)(void* packet, void* edx, CStringA* value);
     static auto _EncodeStrA = hook::GetVtableFunc<decltype(&EncodeStrA)>(COutPacket_vtable, 7);
 
-    void (__fastcall EncodeStrW)(void* packet, void* edx, CStringW* value);
+    void(__fastcall EncodeStrW)(void* packet, void* edx, CStringW* value);
     static auto _EncodeStrW = hook::GetVtableFunc<decltype(&EncodeStrW)>(COutPacket_vtable, 8);
 
     void* (__fastcall EncodeBuf)(void* packet, void* edx, void* value, size_t size);
@@ -52,7 +52,7 @@ namespace outpacket {
     static auto _EncodeCoordS = hook::GetVtableFunc<decltype(&EncodeCoordS)>(COutPacket_vtable, 11);
 
     // void* (__fastcall Encode2fd10)(void* packet, void* edx, float value);
-    // void* (__fastcall Encode2fd1000)(void* packet, void* edx, float value);
+    // void* (__fastcall Encode2fd100)(void* packet, void* edx, float value);
     // void* (__fastcall Encode2fdx)(void* packet, void* edx, float value, float div);
     // void* (__fastcall Encode2ft10)(void* packet, void* edx, float value);
     // void* (__fastcall Encode2ftx)(void* packet, void* edx, float value, float mul);
@@ -69,7 +69,7 @@ namespace outpacket {
 
         // 0x7FFFFFFF is used to avoid writing opcode. Used for copying packets before send?
         if (opcode != 0x7FFFFFFF) {
-          printf("[%p]Init(%04X)\n", _ReturnAddress(), opcode);
+          printf("[%p]InitOut(%04X)\n", _ReturnAddress(), opcode);
         }
 
         void* result = _Init(packet, edx, opcode, unk);
