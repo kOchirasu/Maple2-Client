@@ -7,12 +7,15 @@
 
 #define MS_VC_EXCEPTION   0x406D1388
 
+#define ServiceManagerHook 0x010E6B50
+#define NewMS2VisualTracker 0x00BAA7B0
+
 namespace hook {
   namespace {
     bool BypassNGS(sigscanner::SigScanner& memory) {
 #ifdef _WIN64
       DWORD_PTR dwBypassNGS = memory.FindSig(
-        { 0x48, 0x8D, 0x6C, 0x24, 0xD9, 0x48, 0x81, 0xEC, 0xC0, 0x00, 0x00, 0x00, 0x48, 0xC7, 0x45, 0x07 },{}) - 0x0B;
+        { 0x48, 0x8D, 0x6C, 0x24, 0xD9, 0x48, 0x81, 0xEC, 0xC0, 0x00, 0x00, 0x00, 0x48, 0xC7, 0x45, 0x07 }, {}) - 0x0B;
 #else
       DWORD_PTR dwBypassNGS = memory.FindSig(
         { 0x8D, 0x45, 0xF4, 0x64, 0xA3, 0x00, 0x00, 0x00, 0x00, 0x6A, 0x01 }, {}, /*skip=*/1) - 0x1C;
@@ -77,6 +80,32 @@ namespace hook {
       }
 
       return true;
+    }
+
+    void* (__fastcall Initializing)(void* self, void* edx, DWORD* serviceManager, void* a1);
+    static auto _Initializing = reinterpret_cast<decltype(&Initializing)>(ServiceManagerHook);
+
+    typedef void* (__thiscall* NewMS2Visualizer)(void* ms2);
+    typedef void* (__thiscall* RegisterSystemService)(void* serviceManager, void* service, int priority);
+
+    bool HookServiceManager() {
+      decltype(&Initializing) Hook = [](void* self, void* edx, DWORD* serviceManager, void* a1) -> void* {
+        void* result = _Initializing(self, edx, serviceManager, a1);
+
+        config::ServiceManager = serviceManager;
+        // new MS2TrackerVisualizerManager();
+        config::MS2VisualTracker = (DWORD*)std::malloc(0x1B4);
+        auto newMs2VisualTracker = (NewMS2Visualizer)NewMS2VisualTracker;
+        if (newMs2VisualTracker(config::MS2VisualTracker)) {
+          // ServiceManager::RegisterSystemService(...);
+          auto registerSystemService = (RegisterSystemService)(*(DWORD*)(*config::ServiceManager + 40));
+          registerSystemService(serviceManager, config::MS2VisualTracker, 0x7FFFFFFF);
+        }
+
+        return result;
+      };
+
+      return hook::SetHook(TRUE, reinterpret_cast<void**>(&_Initializing), Hook);
     }
   }
 
@@ -165,9 +194,13 @@ namespace hook {
     }
 
 #ifndef _WIN64
-    if (config::HookChat && !chat::Hook()) {
-      MessageBoxA(NULL, "Failed to hook chat.", "Error", MB_ICONERROR | MB_OK);
-      return FALSE;
+    if (config::EnableVisualizer) {
+      if (!chat::Hook()) {
+        MessageBoxA(NULL, "Failed to hook chat.", "Error", MB_ICONERROR | MB_OK);
+        return FALSE;
+      }
+
+      bResult &= HookServiceManager();
     }
 
     if (config::HookInPacket && !inpacket::Hook()) {

@@ -53,12 +53,16 @@ namespace config {
   std::string HostName;
   unsigned short Port;
 
+  bool LogExceptions;
   bool BypassBanWord;
   bool EnableMultiClient;
+  bool EnableVisualizer;
 
-  bool HookChat;
   bool HookOutPacket;
   bool HookInPacket;
+
+  DWORD* ServiceManager;
+  DWORD* MS2VisualTracker;
 
   bool Load(const std::string& path) {
     inipp::Ini<char> ini;
@@ -85,10 +89,11 @@ namespace config {
     HostName = AtOrDefault<std::string>(cfg, "host", "localhost");
     Port = AtOrDefault<unsigned short>(cfg, "port", 20001);
 
+    LogExceptions = AtOrDefault<bool>(cfg, "log_exceptions");
     BypassBanWord = AtOrDefault<bool>(cfg, "banword");
     EnableMultiClient = AtOrDefault<bool>(cfg, "multiclient");
+    EnableVisualizer = AtOrDefault<bool>(cfg, "visualizer");
 
-    HookChat = AtOrDefault<bool>(cfg, "hook_chat", true);
     HookOutPacket = AtOrDefault<bool>(cfg, "hook_outpacket", false);
     HookInPacket = AtOrDefault<bool>(cfg, "hook_inpacket", false);
 

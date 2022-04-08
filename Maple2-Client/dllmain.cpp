@@ -50,8 +50,11 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD dwReason, LPVOID lpReserved) {
       }
 
 #ifndef _WIN64
-      // Intercept and handle exceptions.
-      hook::InterceptExceptions();
+      if (config::LogExceptions) {
+        std::cout << "Logging exceptions." << std::endl;
+        // Intercept and handle exceptions.
+        hook::InterceptExceptions();
+      }
 #endif
 
       SetConsoleTitleA(config::WindowName.c_str());

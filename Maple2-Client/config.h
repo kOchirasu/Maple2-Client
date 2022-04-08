@@ -11,14 +11,18 @@ namespace config {
   extern std::string HostName;
   extern unsigned short Port;
 
+  extern bool LogExceptions;
   extern bool BypassBanWord;
   extern bool EnableMultiClient;
-
-  extern bool HookChat;
+  extern bool EnableVisualizer;
 
   // Packet Hooks
   extern bool HookOutPacket;
   extern bool HookInPacket;
+
+  // Global pointer to keep track of GameBryo ServiceManager
+  extern DWORD* ServiceManager;
+  extern DWORD* MS2VisualTracker;
 
   bool Load(const std::string& path);
 }
