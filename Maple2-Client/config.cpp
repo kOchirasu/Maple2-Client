@@ -56,6 +56,7 @@ namespace config {
   bool BypassBanWord;
   bool EnableMultiClient;
 
+  bool HookChat;
   bool HookOutPacket;
   bool HookInPacket;
 
@@ -87,6 +88,7 @@ namespace config {
     BypassBanWord = AtOrDefault<bool>(cfg, "banword");
     EnableMultiClient = AtOrDefault<bool>(cfg, "multiclient");
 
+    HookChat = AtOrDefault<bool>(cfg, "hook_chat", true);
     HookOutPacket = AtOrDefault<bool>(cfg, "hook_outpacket", false);
     HookInPacket = AtOrDefault<bool>(cfg, "hook_inpacket", false);
 

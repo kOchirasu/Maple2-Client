@@ -1,4 +1,5 @@
 #pragma once
+#include <Windows.h>
 #include <string>
 
 namespace config {
@@ -12,6 +13,8 @@ namespace config {
 
   extern bool BypassBanWord;
   extern bool EnableMultiClient;
+
+  extern bool HookChat;
 
   // Packet Hooks
   extern bool HookOutPacket;

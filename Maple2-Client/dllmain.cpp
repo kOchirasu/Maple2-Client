@@ -5,8 +5,6 @@
 #include <iostream>
 #include "config.h"
 #include "hook.h"
-#include "packet/inpacket_hook.h"
-#include "packet/outpacket_hook.h"
 #include "win_hook.h"
 #include "winsock_hook.h"
 
@@ -68,18 +66,6 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD dwReason, LPVOID lpReserved) {
         MessageBoxA(NULL, "Failed to hook window.", "Error", MB_ICONERROR | MB_OK);
         return FALSE;
       }
-
-#ifndef _WIN64
-      if (config::HookInPacket && !inpacket::Hook()) {
-        MessageBoxA(NULL, "Failed to hook inpacket.", "Error", MB_ICONERROR | MB_OK);
-        return FALSE;
-      }
-
-      if (config::HookOutPacket && !outpacket::Hook()) {
-        MessageBoxA(NULL, "Failed to hook outpacket.", "Error", MB_ICONERROR | MB_OK);
-        return FALSE;
-      }
-#endif
 
       std::cout << "Successfully hooked all functions." << std::endl;
       break;

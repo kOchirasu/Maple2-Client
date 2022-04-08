@@ -4,6 +4,14 @@
 #include <Windows.h>
 #include <vector>
 
+#ifdef _WIN64
+#define PE_START          0x0000000140001000 /* The standard PE start address */
+#define PE_END            0x000000014FFFFFFF /* The scan range of the PE */
+#else
+#define PE_START          0x00401000 /* The standard PE start address */
+#define PE_END            0x04FFFFFF /* The scan range of the PE */
+#endif
+
 namespace sigscanner {
   class SigScanner {
   public:

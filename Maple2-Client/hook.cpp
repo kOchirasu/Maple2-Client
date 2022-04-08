@@ -1,14 +1,9 @@
 #include <iostream>
 #include "hook.h"
+#include "chat/chat_hook.h"
+#include "packet/inpacket_hook.h"
+#include "packet/outpacket_hook.h"
 #include "config.h"
-
-#ifdef _WIN64
-#define PE_START          0x0000000140001000 /* The standard PE start address */
-#define PE_END            0x000000014FFFFFFF /* The scan range of the PE */
-#else
-#define PE_START          0x00401000 /* The standard PE start address */
-#define PE_END            0x04FFFFFF /* The scan range of the PE */
-#endif
 
 #define MS_VC_EXCEPTION   0x406D1388
 
@@ -168,6 +163,23 @@ namespace hook {
     if (config::BypassBanWord) {
       bResult &= BypassBanWord(memory);
     }
+
+#ifndef _WIN64
+    if (config::HookChat && !chat::Hook()) {
+      MessageBoxA(NULL, "Failed to hook chat.", "Error", MB_ICONERROR | MB_OK);
+      return FALSE;
+    }
+
+    if (config::HookInPacket && !inpacket::Hook()) {
+      MessageBoxA(NULL, "Failed to hook inpacket.", "Error", MB_ICONERROR | MB_OK);
+      return FALSE;
+    }
+
+    if (config::HookOutPacket && !outpacket::Hook()) {
+      MessageBoxA(NULL, "Failed to hook outpacket.", "Error", MB_ICONERROR | MB_OK);
+      return FALSE;
+    }
+#endif
 
     return bResult;
   }
