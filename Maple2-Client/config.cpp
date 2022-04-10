@@ -24,7 +24,7 @@ namespace config {
       if (str.size() != sTrue.size()) {
         return false;
       }
-      for (int i = 0; i < sTrue.size(); i++) {
+      for (unsigned int i = 0; i < sTrue.size(); i++) {
         if (std::tolower(str[i]) != sTrue[i]) {
           return false;
         }

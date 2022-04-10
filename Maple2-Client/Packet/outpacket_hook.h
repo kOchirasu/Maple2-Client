@@ -1,5 +1,5 @@
 #pragma once
 
-namespace outpacket {
-  bool Hook();
+namespace packet {
+  bool HookOut();
 }

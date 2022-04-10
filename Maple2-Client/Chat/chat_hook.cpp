@@ -32,7 +32,7 @@ namespace chat {
       decltype(&EncodeChat) Hook = [](ChatMessage* chat, void* edx, void* packet) -> void* {
         if (chat->message != nullptr) {
           std::wstring message(chat->message);
-          if (message._Equal(L"viz")) {
+          if (config::EnableVisualizer && message._Equal(L"viz")) {
             ToggleMS2VisualTrackerManager();
           }
         }

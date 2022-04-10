@@ -39,6 +39,9 @@
     <ClInclude Include="Chat\chat_hook.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Packet\packet_tracker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">

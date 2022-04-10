@@ -203,12 +203,12 @@ namespace hook {
       bResult &= HookServiceManager();
     }
 
-    if (config::HookInPacket && !inpacket::Hook()) {
+    if (config::HookInPacket && !packet::HookIn()) {
       MessageBoxA(NULL, "Failed to hook inpacket.", "Error", MB_ICONERROR | MB_OK);
       return FALSE;
     }
 
-    if (config::HookOutPacket && !outpacket::Hook()) {
+    if (config::HookOutPacket && !packet::HookOut()) {
       MessageBoxA(NULL, "Failed to hook outpacket.", "Error", MB_ICONERROR | MB_OK);
       return FALSE;
     }
