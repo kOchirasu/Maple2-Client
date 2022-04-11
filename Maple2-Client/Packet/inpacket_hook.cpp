@@ -1,7 +1,7 @@
 #include "atlstr.h"
 #include <sstream>
 #include <map>
-#include <mutex>
+
 #include <format>
 #include "../hook.h"
 #include "inpacket_hook.h"
@@ -38,23 +38,17 @@ namespace packet {
     // float (__fastcall Decode2fdx)(CInPacket* packet, void* edx, float div);
 #pragma endregion
 
-    // These mutexes are used to prevent the same value from being logged in multiple functions.
-    static std::map<void*, std::mutex> logMutex;
     static PacketTracker tracker;
 
     bool Init_Hook() {
       static auto _Init = reinterpret_cast<decltype(&Init)>(CInPacket_init);
       decltype(&Init) Hook = [](int* packet_base, void* edx) -> __int16 {
         void* key = static_cast<void*>(packet_base + 1);
-        if (!logMutex[key].try_lock()) {
-          return _Init(packet_base, edx);
-        }
-
-        __int16 opcode = _Init(packet_base, edx);
         auto packet = reinterpret_cast<CInPacket*>(key);
-        tracker.SetOp(packet, opcode, { packet->offset, EntryType::Short, _ReturnAddress() });
+        tracker.Append(packet, { packet->offset, EntryType::Short, _ReturnAddress() }, true);
+        __int16 opcode = _Init(packet_base, edx);
+        tracker.SetOp(packet, opcode);
         //printf("[%p]InitIn(%p)=%04X\n", _ReturnAddress(), key, opcode);
-        logMutex.erase(key);
         return opcode;
       };
 
@@ -94,14 +88,9 @@ namespace packet {
     bool DecodeB_Hook() {
       static auto _DecodeB = hook::GetVtableFunc<decltype(&DecodeB)>(CInPacket_vtable, 0);
       decltype(&DecodeB) Hook = [](CInPacket* packet, void* edx) -> bool {
-        if (!logMutex[packet].try_lock()) {
-          return _DecodeB(packet, edx);
-        }
-
         tracker.Append(packet, { packet->offset, EntryType::Bool, _ReturnAddress() });
         __int8 result = _DecodeB(packet, edx);
         //printf("[%p]DecodeB()=%d\n", _ReturnAddress(), result);
-        logMutex.erase(packet);
         return result;
       };
 
@@ -111,14 +100,9 @@ namespace packet {
     bool Decode1_Hook() {
       static auto _Decode1 = hook::GetVtableFunc<decltype(&Decode1)>(CInPacket_vtable, 1);
       decltype(&Decode1) Hook = [](CInPacket* packet, void* edx) -> __int8 {
-        if (!logMutex[packet].try_lock()) {
-          return _Decode1(packet, edx);
-        }
-
         tracker.Append(packet, { packet->offset, EntryType::Byte, _ReturnAddress() });
         __int8 result = _Decode1(packet, edx);
         //printf("[%p]Decode1()=%d\n", _ReturnAddress(), result);
-        logMutex.erase(packet);
         return result;
       };
 
@@ -128,14 +112,9 @@ namespace packet {
     bool Decode2_Hook() {
       static auto _Decode2 = hook::GetVtableFunc<decltype(&Decode2)>(CInPacket_vtable, 2);
       decltype(&Decode2) Hook = [](CInPacket* packet, void* edx) -> __int16 {
-        if (!logMutex[packet].try_lock()) {
-          return _Decode2(packet, edx);
-        }
-
         tracker.Append(packet, { packet->offset, EntryType::Short, _ReturnAddress()});
         __int16 result = _Decode2(packet, edx);
         //printf("[%p]Decode2()=%d\n", _ReturnAddress(), result);
-        logMutex.erase(packet);
         return result;
       };
 
@@ -169,14 +148,9 @@ namespace packet {
     bool DecodeF_Hook() {
       static auto _DecodeF = hook::GetVtableFunc<decltype(&DecodeF)>(CInPacket_vtable, 5);
       decltype(&DecodeF) Hook = [](CInPacket* packet, void* edx) -> float {
-        if (!logMutex[packet].try_lock()) {
-          return _DecodeF(packet, edx);
-        }
-
         tracker.Append(packet, { packet->offset, EntryType::Float, _ReturnAddress() });
         float result = _DecodeF(packet, edx);
         //printf("[%p]DecodeF()=%f\n", _ReturnAddress(), result);
-        logMutex.erase(packet);
         return result;
       };
 
@@ -186,14 +160,9 @@ namespace packet {
     bool DecodeWStrA_Hook() {
       static auto _DecodeWStrA = hook::GetVtableFunc<decltype(&DecodeWStrA)>(CInPacket_vtable, 6);
       decltype(&DecodeWStrA) Hook = [](CInPacket* packet, void* edx, CStringA* dst) -> CStringA* {
-        if (!logMutex[packet].try_lock()) {
-          return _DecodeWStrA(packet, edx, dst);
-        }
-
         tracker.Append(packet, { packet->offset, EntryType::WString, _ReturnAddress() });
         CStringA* result = _DecodeWStrA(packet, edx, dst);
         //printf("[%p]DecodeWStrA()=\"%s\"\n", _ReturnAddress(), result->GetString());
-        logMutex.erase(packet);
         return result;
       };
 
@@ -203,14 +172,9 @@ namespace packet {
     bool DecodeStrA_Hook() {
       static auto _DecodeStrA = hook::GetVtableFunc<decltype(&DecodeStrA)>(CInPacket_vtable, 7);
       decltype(&DecodeStrA) Hook = [](CInPacket* packet, void* edx, CStringA* dst) -> CStringA* {
-        if (!logMutex[packet].try_lock()) {
-          return _DecodeStrA(packet, edx, dst);
-        }
-
         tracker.Append(packet, { packet->offset, EntryType::String, _ReturnAddress() });
         CStringA* result = _DecodeStrA(packet, edx, dst);
         //printf("[%p]DecodeStrA()=\"%s\"\n", _ReturnAddress(), result->GetString());
-        logMutex.erase(packet);
         return result;
       };
 
@@ -220,14 +184,9 @@ namespace packet {
     bool DecodeStrW_Hook() {
       static auto _DecodeStrW = hook::GetVtableFunc<decltype(&DecodeStrW)>(CInPacket_vtable, 8);
       decltype(&DecodeStrW) Hook = [](CInPacket* packet, void* edx, CStringW* dst) -> CStringW* {
-        if (!logMutex[packet].try_lock()) {
-          return _DecodeStrW(packet, edx, dst);
-        }
-
         tracker.Append(packet, { packet->offset, EntryType::WString, _ReturnAddress() });
         CStringW* result = _DecodeStrW(packet, edx, dst);
         //printf("[%p]DecodeStrW()=\"%ls\"\n", _ReturnAddress(), result->GetString());
-        logMutex.erase(packet);
         return result;
       };
 
@@ -250,14 +209,9 @@ namespace packet {
     bool DecodeCoordF_Hook() {
       static auto _DecodeCoordF = hook::GetVtableFunc<decltype(&DecodeCoordF)>(CInPacket_vtable, 10);
       decltype(&DecodeCoordF) Hook = [](CInPacket* packet, void* edx, float* dst) -> float* {
-        if (!logMutex[packet].try_lock()) {
-          return _DecodeCoordF(packet, edx, dst);
-        }
-
         tracker.Append(packet, { packet->offset, EntryType::CoordF, _ReturnAddress() });
         float* result = _DecodeCoordF(packet, edx, dst);
         //printf("[%p]DecodeCoordF()=<%f, %f, %f>\n", _ReturnAddress(), result[0], result[1], result[2]);
-        logMutex.erase(packet);
         return result;
       };
 
@@ -267,14 +221,9 @@ namespace packet {
     bool DecodeCoordS_Hook() {
       static auto _DecodeCoordS = hook::GetVtableFunc<decltype(&DecodeCoordS)>(CInPacket_vtable, 11);
       decltype(&DecodeCoordS) Hook = [](CInPacket* packet, void* edx, __int16* dst) -> __int16* {
-        if (!logMutex[packet].try_lock()) {
-          return _DecodeCoordS(packet, edx, dst);
-        }
-
         tracker.Append(packet, { packet->offset, EntryType::CoordS, _ReturnAddress() });
         __int16* result = _DecodeCoordS(packet, edx, dst);
         //printf("[%p]DecodeCoordS()=<%d, %d, %d>\n", _ReturnAddress(), result[0], result[1], result[2]);
-        logMutex.erase(packet);
         return result;
       };
 

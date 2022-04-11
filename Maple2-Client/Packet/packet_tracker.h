@@ -3,6 +3,7 @@
 #include <iostream>
 #include <list>
 #include <map>
+#include <mutex>
 #include <optional>
 
 namespace packet {
@@ -70,28 +71,25 @@ namespace packet {
   class PacketTracker {
   public:
     bool Create(void* base) {
+      const std::lock_guard<std::mutex> lock(mu[base]);
       PacketChain chain;
       auto it = dict.try_emplace(base, std::move(chain));
       return it.second;
     }
 
-    bool SetOp(void* base, short op, PacketEntry entry) {
+    bool SetOp(void* base, short op) {
+      const std::lock_guard<std::mutex> lock(mu[base]);
       auto it = dict.find(base);
       if (it == dict.end()) {
         return false;
       }
 
-      // SetOp is called when DecodeHeader is invoked. This resets the packet offset.
-      PacketChain& chain = it->second;
-      chain.op = op;
-      chain.offset = HEADER_SIZE;
-      entry.offset = HEADER_SIZE;
-      chain.entries.clear();
-      chain.entries.push_back(std::move(entry));
+      it->second.op = op;
       return true;
     }
 
-    bool Append(void* base, PacketEntry entry) {
+    bool Append(void* base, PacketEntry entry, bool isHeader = false) {
+      const std::lock_guard<std::mutex> lock(mu[base]);
       auto it = dict.find(base);
       if (it == dict.end()) {
         return false;
@@ -100,6 +98,11 @@ namespace packet {
       PacketChain& chain = it->second;
       // duplicate result
       if (entry.offset <= chain.offset) {
+        // Header is re-read multiple times due to different handlers.
+        // Overwrite previous return_addr in this case.
+        if (isHeader && chain.offset <= HEADER_SIZE + 2) {
+          chain.entries.begin()->return_addr = entry.return_addr;
+        }
         return false;
       }
 
@@ -109,6 +112,7 @@ namespace packet {
     }
 
     std::optional<PacketChain> Finalize(void* base) {
+      const std::lock_guard<std::mutex> lock(mu[base]);
       auto it = dict.find(base);
       if (it == dict.end()) {
         return std::nullopt;
@@ -116,10 +120,12 @@ namespace packet {
 
       PacketChain result = it->second;
       dict.erase(it);
+      mu.erase(base);
       return result;
     }
 
   private:
+    std::map<void*, std::mutex> mu;
     std::map<void*, PacketChain> dict;
   };
 }
