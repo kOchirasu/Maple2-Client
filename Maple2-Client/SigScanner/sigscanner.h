@@ -23,7 +23,9 @@ namespace sigscanner {
 
     DWORD_PTR FindSig(const std::vector<BYTE>& sig, const std::vector<bool>& mask, int skip = 0);
 
-    static DWORD_PTR FindSig(DWORD_PTR dwStart, DWORD_PTR dwEnd, const std::vector<BYTE>& sig, const std::vector<bool>& mask, int skip = 0);
+    DWORD_PTR FindSigAligned(const std::vector<BYTE>& sig, const std::vector<bool>& mask, BYTE align, int skip = 0);
+
+    static DWORD_PTR FindSig(DWORD_PTR dwStart, DWORD_PTR dwEnd, const std::vector<BYTE>& sig, const std::vector<bool>& mask, BYTE align = 1, int skip = 0);
 
   private:
     DWORD_PTR _dwStartAddr;

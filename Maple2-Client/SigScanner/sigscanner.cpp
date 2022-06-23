@@ -27,10 +27,14 @@ namespace sigscanner {
   }
 
   DWORD_PTR SigScanner::FindSig(const std::vector<BYTE>& sig, const std::vector<bool>& mask, int skip) {
-    return FindSig(_dwStartAddr, _dwEndAddr, sig, mask, skip);
+    return FindSig(_dwStartAddr, _dwEndAddr, sig, mask, 1, skip);
   }
 
-  DWORD_PTR SigScanner::FindSig(DWORD_PTR dwStart, DWORD_PTR dwEnd, const std::vector<BYTE>& sig, const std::vector<bool>& mask, int skip) {
+  DWORD_PTR SigScanner::FindSigAligned(const std::vector<BYTE>& sig, const std::vector<bool>& mask, BYTE align, int skip) {
+    return FindSig(_dwStartAddr, _dwEndAddr, sig, mask, align, skip);
+  }
+
+  DWORD_PTR SigScanner::FindSig(DWORD_PTR dwStart, DWORD_PTR dwEnd, const std::vector<BYTE>& sig, const std::vector<bool>& mask, BYTE align, int skip) {
     if (sig.empty()) {
       return NULL;
     }
@@ -38,7 +42,7 @@ namespace sigscanner {
     size_t size = sig.size();
     size_t i;
     __try {
-      for (DWORD_PTR addr = dwStart; addr < (dwEnd - size); addr++) {
+      for (DWORD_PTR addr = dwStart; addr < (dwEnd - size); addr += align) {
         for (i = 0; i < size; i++) {
           if (i < mask.size() && mask[i]) {
             continue;
