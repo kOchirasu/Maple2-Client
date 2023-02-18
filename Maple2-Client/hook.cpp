@@ -56,11 +56,11 @@ namespace hook {
     }
 
     bool BypassBanWord(sigscanner::SigScanner& memory) {
-      std::string banWord = "banWord.xml";
+      const std::string banWord = "banWord.xml";
       std::vector<BYTE> yBanWord(banWord.begin(), banWord.end());
       DWORD_PTR dwBypassBanWord = memory.FindSig(yBanWord, {});
 
-      std::string banWordAll = "banWordAll.xml";
+      const std::string banWordAll = "banWordAll.xml";
       std::vector<BYTE> yBanWordAll(banWordAll.begin(), banWordAll.end());
       DWORD_PTR dwBypassBanWordAll = memory.FindSig(yBanWordAll, {});
 
@@ -78,6 +78,39 @@ namespace hook {
         memory.WriteBytes(dwBypassBanWordAll, { '\0' }); // 0-length string
         std::cout << "BYPASS_BANWORDALL at " << (void*)dwBypassBanWordAll << std::endl;
       }
+
+      return true;
+    }
+
+    bool PatchUgdUrl(sigscanner::SigScanner& memory, const std::string& newUrl) {
+      const std::string oldUrl = "http://ms2ugcimagetest.s3.amazonaws.com/test/designlab_entry.html";
+      std::vector<BYTE> yOldUrl(oldUrl.begin(), oldUrl.end());
+      DWORD_PTR dwPatchUgdUrl = memory.FindSig(yOldUrl, {});
+
+      if (dwPatchUgdUrl == NULL) {
+        std::cerr << "PATCH_UGD_URL failed to find signature." << std::endl;
+        return false;
+      }
+
+      std::vector<BYTE> yNewUrl(newUrl.begin(), newUrl.end());
+      yNewUrl.push_back('\0'); // Null terminator
+      memory.WriteBytes(dwPatchUgdUrl, yNewUrl);
+      std::cout << "PATCH_UGD_URL at " << (void*)dwPatchUgdUrl << std::endl;
+
+      // Fix typo on saved fields.
+      const std::string startTag = "<dercorations>";
+      const std::string fixStartTag = "<decorations>\0";
+      std::vector<BYTE> yStartTag(startTag.begin(), startTag.end());
+      std::vector<BYTE> yFixStartTag(fixStartTag.begin(), fixStartTag.end());
+      DWORD_PTR dwStartTag = memory.FindSig(yStartTag, {});
+      memory.WriteBytes(dwStartTag, yFixStartTag);
+
+      const std::string endTag = "</dercorations>";
+      const std::string fixEndTag = "</decorations>\0";
+      std::vector<BYTE> yEndTag(endTag.begin(), endTag.end());
+      std::vector<BYTE> yFixEndTag(fixEndTag.begin(), fixEndTag.end());
+      DWORD_PTR dwEndTag = memory.FindSig(yEndTag, {});
+      memory.WriteBytes(dwEndTag, yFixEndTag);
 
       return true;
     }
@@ -191,6 +224,10 @@ namespace hook {
 
     if (config::BypassBanWord) {
       bResult &= BypassBanWord(memory);
+    }
+
+    if (!config::UgdUrl.empty()) {
+      bResult &= PatchUgdUrl(memory, config::UgdUrl);
     }
 
 #ifndef _WIN64

@@ -57,6 +57,7 @@ namespace config {
   bool BypassBanWord;
   bool EnableMultiClient;
   bool EnableVisualizer;
+  std::string UgdUrl;
 
   bool HookOutPacket;
   bool HookInPacket;
@@ -93,6 +94,7 @@ namespace config {
     BypassBanWord = AtOrDefault<bool>(cfg, "banword");
     EnableMultiClient = AtOrDefault<bool>(cfg, "multiclient");
     EnableVisualizer = AtOrDefault<bool>(cfg, "visualizer");
+    UgdUrl = AtOrDefault<std::string>(cfg, "ugd_url", "");
 
     HookOutPacket = AtOrDefault<bool>(cfg, "hook_outpacket", false);
     HookInPacket = AtOrDefault<bool>(cfg, "hook_inpacket", false);
