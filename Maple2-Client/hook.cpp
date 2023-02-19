@@ -97,6 +97,15 @@ namespace hook {
       memory.WriteBytes(dwPatchUgdUrl, yNewUrl);
       std::cout << "PATCH_UGD_URL at " << (void*)dwPatchUgdUrl << std::endl;
 
+      // Patch libcef hash check to always succeed. (je -> jmp)
+#ifdef _WIN64
+      // cf092ef692a2ff18b0fc732b58bde9b8b8655fcc
+      memory.WriteBytes(0x141621EA4, { 0xEB });
+#else
+      // 1572ecbd47bba644fb71ada9451e128cd5087d12
+      memory.WriteBytes(0x01523B2B, { 0xEB });
+#endif
+
       // Fix typo on saved fields.
       const std::string startTag = "<dercorations>";
       const std::string fixStartTag = "<decorations>\0";
@@ -139,6 +148,25 @@ namespace hook {
       };
 
       return hook::SetHook(TRUE, reinterpret_cast<void**>(&_Initializing), Hook);
+    }
+
+    bool (__fastcall IsConfigFile)(void* self, void* edx, char* path);
+    static auto _IsConfigFile = reinterpret_cast<decltype(&IsConfigFile)>(0x004B8BC0);
+
+    bool HookIsConfigFile() {
+      decltype(&IsConfigFile) Hook = [](void* self, void* edx, char* path) -> bool {
+        bool result = _IsConfigFile(self, edx, path);
+        // Treat files being loaded from a drive (e.g. C:/) as valid
+        // needed for UGD map loading.
+        if (path[1] == ':') {
+          std::cout << "Loading file: " << path << std::endl;
+          return true;
+        }
+
+        return result;
+      };
+
+      return hook::SetHook(TRUE, reinterpret_cast<void**>(&_IsConfigFile), Hook);
     }
   }
 
@@ -238,6 +266,10 @@ namespace hook {
       }
 
       bResult &= HookServiceManager();
+    }
+
+    if (!config::UgdUrl.empty()) {
+      bResult &= HookIsConfigFile();
     }
 
     if (config::HookInPacket && !packet::HookIn()) {
