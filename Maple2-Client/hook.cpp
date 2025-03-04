@@ -168,6 +168,62 @@ namespace hook {
 
       return hook::SetHook(TRUE, reinterpret_cast<void**>(&_IsConfigFile), Hook);
     }
+
+    typedef int(__cdecl* CefBrowserHostCreateBrowserFn)(int param_1, uintptr_t* param_2, int param_3, uintptr_t* param_4, uintptr_t* param_5);
+
+    static CefBrowserHostCreateBrowserFn _OriginalCefBrowserCreate = nullptr;
+
+    typedef enum {
+      STATE_DEFAULT = 0,
+      STATE_ENABLED,
+      STATE_DISABLED,
+    } cef_state_t;
+
+    typedef struct _cef_browser_settings_t {
+      size_t size;
+      int windowless_frame_rate;
+      uintptr_t standard_font_family;
+      uintptr_t fixed_font_family;
+      uintptr_t serif_font_family;
+      uintptr_t sans_serif_font_family;
+      uintptr_t cursive_font_family;
+      uintptr_t fantasy_font_family;
+      int default_font_size;
+      int default_fixed_font_size;
+      int minimum_font_size;
+      int minimum_logical_font_size;
+
+      uintptr_t default_encoding;
+      cef_state_t remote_fonts;
+      cef_state_t javascript;
+    } cef_browser_settings_t;
+
+    static bool HookedCreateBrowser(int param_1, uintptr_t* param_2, int param_3, uintptr_t* param_4, uintptr_t* param_5) {
+      _cef_browser_settings_t* settings = reinterpret_cast<_cef_browser_settings_t*>(*(param_4 + 8));
+      settings->javascript = STATE_ENABLED;
+
+      return _OriginalCefBrowserCreate(param_1, param_2, param_3, param_4, param_5);
+    }
+
+   bool EnableCefHook(sigscanner::SigScanner& memory) {
+      std::vector<BYTE> pattern = {
+        0x48, 0x8B, 0xC4, 0x48, 0x89, 0x50, 0x00, 0x55, 0x56, 0x57, 0x41, 0x56, 0x41, 0x57, 0x48, 0x83, 0xEC, 0x00, 0x48, 0xC7, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x48, 0x89, 0x58, 0x00, 0x49, 0x8B, 0xD8
+      };
+
+      std::vector<bool> mask = {
+        true, true, true, false, true, true, true, false, false, false, false, false, true, true, true, false, true, true, true, true, true, true, true, true, true, true, false, true, true, true, true, true, true
+      };
+
+      // Find the signature - simplifying by using a shorter but unique portion
+      _OriginalCefBrowserCreate = reinterpret_cast<CefBrowserHostCreateBrowserFn> (memory.FindSig(pattern, mask));
+
+      if (_OriginalCefBrowserCreate == NULL) {
+        std::cerr << "ENABLE_JS failed to find CEF imports signature." << std::endl;
+        return false;
+      }
+
+     return hook::SetHook(TRUE, reinterpret_cast<void**>(&_OriginalCefBrowserCreate), HookedCreateBrowser);
+   }
   }
 
   FARPROC GetFuncAddress(LPCSTR lpLibFileName, LPCSTR lpProcName) {
@@ -256,6 +312,10 @@ namespace hook {
 
     if (!config::UgdUrl.empty()) {
       bResult &= PatchUgdUrl(memory, config::UgdUrl);
+    }
+
+    if (config::EnableCefHook) {
+      bResult &= EnableCefHook(memory);
     }
 
 #ifndef _WIN64
