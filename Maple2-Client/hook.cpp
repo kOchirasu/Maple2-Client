@@ -198,8 +198,7 @@ namespace hook {
       cef_state_t javascript;
     } cef_browser_settings_t;
 
-    static bool HookedCreateBrowser(int param_1, uintptr_t* param_2, int param_3, uintptr_t* param_4,
-      uintptr_t* param_5) {
+    static bool HookedCreateBrowser(int param_1, uintptr_t* param_2, int param_3, uintptr_t* param_4, uintptr_t* param_5) {
       _cef_browser_settings_t* settings = reinterpret_cast<_cef_browser_settings_t*>(*(param_4 + 8));
       settings->javascript = STATE_ENABLED;
 

@@ -62,7 +62,7 @@ namespace config {
   bool HookOutPacket;
   bool HookInPacket;
 
-  bool EnableCefHook = true;
+  bool EnableCefHook;
 
   DWORD* ServiceManager;
   DWORD* MS2VisualTracker;
